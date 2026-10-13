@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>萬能字幕產生器</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230F766E'/%3E%3Crect x='7' y='17' width='18' height='3' rx='1.5' fill='white'/%3E%3Crect x='10' y='22' width='12' height='3' rx='1.5' fill='white' opacity='.75'/%3E%3Cpath d='M13 7.5v6.5l5.5-3.25z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<!-- 圖示(自繪的線條圖示,同一套風格;裝飾用的一律 aria-hidden) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="currentColor"/><rect x="7" y="17" width="18" height="3" rx="1.5" fill="#fff"/><rect x="10" y="22" width="12" height="3" rx="1.5" fill="#fff" opacity=".75"/><path d="M13 7.5v6.5l5.5-3.25z" fill="#fff"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-5-6-5"/><path d="M12 19h8"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-hdd" viewBox="0 0 24 24"><path d="M22 12H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/><path d="M6 16h.01M10 16h.01"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.8-9.8M15.5 7.5l3 3M18 5l2.5 2.5"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M1 21a8 8 0 0 1 16 0M16 4a4 4 0 0 1 0 8M23 21a8 8 0 0 0-5-7.4"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/></symbol>
+    <symbol id="i-broom" viewBox="0 0 24 24"><path d="m15 4 5 5M13 6l5 5-7 7-5-5zM6 13l-3 8 8-3"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></symbol>
+  </defs>
+</svg>
+
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><svg class="logo" aria-hidden="true"><use href="#i-logo"/></svg><span>萬能字幕產生器</span></div>
+    <nav id="nav" aria-label="主要選單" hidden>
+      <a href="#/" data-view="work"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>工作台</span></a>
+      <a href="#/settings" data-view="settings"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg><span>設定</span></a>
+      <a href="#/admin" data-view="admin" id="navAdmin" hidden><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span>管理</span><span id="pendingBadge" class="nbadge" hidden></span></a>
+    </nav>
+    <div class="who" id="who" hidden>
+      <span class="avatar" aria-hidden="true"><svg class="ic"><use href="#i-user"/></svg></span>
+      <span id="whoName" class="who-name"></span>
+      <button id="logout" class="btn ghost icon-btn" title="登出" aria-label="登出"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <!-- 登入 -->
+  <section id="view-login" class="view" hidden>
+    <div class="auth">
+      <svg class="auth-logo" aria-hidden="true"><use href="#i-logo"/></svg>
+      <h1>萬能字幕產生器</h1>
+      <p class="mute">上傳影片或音檔,自動產生字幕並翻譯。登入後只看得到自己的檔案與字幕。</p>
+      <a id="googleBtn" class="btn primary block lg" href="/auth/google/login" hidden>使用 Google 帳號登入</a>
+      <p id="googleOff" class="note small" hidden>這台伺服器還沒有設定 Google 登入(管理者執行「設定Google登入.bat」後就會出現)。</p>
+      <div id="devLogin" hidden>
+        <div class="sep"><span>開發用登入</span></div>
+        <form id="devForm" class="stack">
+          <label class="field"><span>名稱</span>
+            <input id="devName" type="text" placeholder="輸入任何名稱,例如 alice" required maxlength="40" autocomplete="username"></label>
+          <div class="dev-opts">
+            <label class="field inline"><span>等級</span><select id="devTier"><option value="free">一般會員</option><option value="paid">付費會員</option></select></label>
+            <label class="check"><input id="devAdmin" type="checkbox"> 管理者</label>
+            <label class="check"><input id="devPending" type="checkbox"> 模擬待核准的新帳號</label>
+          </div>
+          <button class="btn primary block" type="submit">登入</button>
+        </form>
+        <p class="mute small">換一個名稱登入就是另一個使用者。正式上線前會關閉這個功能。</p>
+      </div>
+      <p id="loginMsg" class="bad small" role="alert"></p>
+    </div>
+  </section>
+
+  <!-- 等待核准 / 已停用 -->
+  <section id="view-wait" class="view" hidden>
+    <div class="auth">
+      <svg class="auth-logo" aria-hidden="true"><use href="#i-logo"/></svg>
+      <h1 id="waitTitle">帳號尚待核准</h1>
+      <p id="waitText" class="mute"></p>
+      <p class="small">登入帳號:<span id="waitWho"></span></p>
+      <div class="row center"><button id="waitReload" class="btn primary">重新整理</button><button id="waitLogout" class="btn">登出</button></div>
+    </div>
+  </section>
+
+  <!-- 工作台:左邊檔案為主,右邊固定的處理選項 -->
+  <section id="view-work" class="view" hidden>
+    <div id="usage" class="usage" aria-live="polite"></div>
+    <div class="work">
+      <div class="work-main">
+        <div class="card" id="dropCard">
+          <label id="drop" class="drop" tabindex="0">
+            <input id="file" type="file" multiple hidden
+                   accept="video/*,audio/*,.srt,.mkv,.ts,.mts,.m2ts,.flv,.wmv,.mpg,.mpeg,.3gp">
+            <span class="drop-ic" aria-hidden="true"><svg class="ic"><use href="#i-upload"/></svg></span>
+            <strong>把影片、音檔或 SRT 字幕拖到這裡</strong>
+            <span class="mute">或按這裡選擇檔案,可以一次選多個</span>
+            <span class="mute small" id="dropHint">影片會先在你的瀏覽器裡抽出聲音再上傳,影片本身不會離開你的電腦;瀏覽器處理不了時才改傳原檔。</span>
+          </label>
+          <ul id="uploads" class="uploads"></ul>
+        </div>
+
+        <div class="card files-card">
+          <div class="card-head">
+            <h2><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>檔案</h2>
+            <label class="check small sel-all"><input type="checkbox" id="selAll"> 全選</label>
+          </div>
+          <div id="status" class="status" hidden role="status"></div>
+          <div id="bulk" class="bulk" hidden>
+            <span id="bulkCount"></span>
+            <button class="btn sm" data-bulk="zip">下載字幕(zip)</button>
+            <button class="btn sm" data-bulk="translate">只翻譯</button>
+            <button class="btn sm" data-bulk="retranslate">重新翻譯</button>
+            <button class="btn sm" data-bulk="retranscribe">重新轉錄</button>
+            <button class="btn sm danger" data-bulk="delete">刪除</button>
+          </div>
+          <table class="files" id="files">
+            <thead><tr><th class="c-check"><span class="sr">選取</span></th>
+              <th>檔名</th><th class="c-state">狀態</th><th class="c-prog">進度</th><th class="c-act">字幕</th><th class="c-more"><span class="sr">更多</span></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+          <div id="empty" class="empty">
+            <svg class="ic xl" aria-hidden="true"><use href="#i-inbox"/></svg>
+            <p><strong>還沒有檔案</strong></p>
+            <p class="mute small">把影片拖到上面的框裡就可以開始。</p>
+          </div>
+        </div>
+
+        <details class="card log" id="logBox">
+          <summary><svg class="ic" aria-hidden="true"><use href="#i-terminal"/></svg>處理日誌</summary>
+          <pre id="log"></pre>
+        </details>
+      </div>
+
+      <aside class="work-side" aria-label="處理選項">
+        <div class="card side-card">
+          <h2><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg>處理選項</h2>
+          <div class="form">
+            <label class="field" id="rowModel" hidden><span>轉錄模型</span><select id="o_model"></select></label>
+            <label class="field"><span>原文語言</span><select id="o_src"></select></label>
+            <label class="field"><span>翻譯目標</span><select id="o_tgt"></select></label>
+            <label class="field needs-tgt"><span>字幕輸出</span>
+              <select id="o_mode"><option value="translated">只輸出譯文</option><option value="bilingual">雙語(原文+譯文)</option></select></label>
+            <label class="field needs-tgt"><span>翻譯引擎</span><select id="o_eng"></select></label>
+            <div class="checks">
+              <label class="check"><input id="o_tw" type="checkbox"> 中文轉台灣繁體用語</label>
+              <label class="check"><input id="o_vad" type="checkbox"> 略過沒有人聲的片段(VAD)</label>
+              <label class="check"><input id="o_txt" type="checkbox"> 另外輸出純文字 TXT</label>
+            </div>
+            <label class="field" id="rowUpload" hidden><span>影片上傳方式</span>
+              <select id="o_upload"><option value="browser">瀏覽器先抽出聲音(建議)</option><option value="original">直接上傳原檔,由伺服器抽聲音</option></select></label>
+            <p id="uploadHint" class="note warn small" hidden>原檔通常比抽出的聲音大幾十倍(4 GB 的影片,聲音約 50 MB),上傳會久很多,影片也會暫時放在伺服器上(抽完聲音立即刪除)。上傳時請不要關閉這個分頁。</p>
+          </div>
+          <div class="side-actions">
+            <button id="start" class="btn cta block lg"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>開始處理</button>
+            <button id="cancel" class="btn block" hidden><svg class="ic" aria-hidden="true"><use href="#i-stop"/></svg>取消處理</button>
+            <button id="notifyBtn" class="btn ghost block sm" hidden><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>完成時通知我</button>
+          </div>
+          <p class="mute small">選項會自動記住。「開始處理」只做還沒做的事:已轉錄的檔案選了翻譯目標,只會翻譯,不會重新轉錄。</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 設定 -->
+  <section id="view-settings" class="view narrow-view" hidden>
+    <h1 class="page-title">設定</h1>
+    <div class="card">
+      <h2><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>我的帳號</h2>
+      <p id="myTier"></p>
+      <ul id="myLimits" class="limits small"></ul>
+      <p class="mute small">需要更高的上限或其他功能,請聯絡管理者。</p>
+    </div>
+
+    <div class="card">
+      <h2><svg class="ic" aria-hidden="true"><use href="#i-type"/></svg>字幕斷行</h2>
+      <div class="form two">
+        <label class="field"><span>中日韓每行字數</span><input id="s_cjk" type="number" min="8" max="40"></label>
+        <label class="field"><span>英文等每行字元</span><input id="s_latin" type="number" min="20" max="80"></label>
+      </div>
+      <div class="row"><button id="saveSeg" class="btn primary">儲存</button><span id="segMsg" class="mute small" role="status"></span></div>
+    </div>
+
+    <div class="card">
+      <h2><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>詞彙表<span class="tag">只有你自己用</span></h2>
+      <p class="mute small">一行一個詞。寫成「原詞=譯詞」時,翻譯會固定使用這個譯法;只寫原詞則用來提高轉錄辨識率。# 開頭的行是註解。例:熱軋=hot rolling</p>
+      <label class="sr" for="gloss">詞彙表內容</label>
+      <textarea id="gloss" spellcheck="false" rows="10"></textarea>
+      <div class="row"><button id="saveGloss" class="btn primary">儲存詞彙表</button><span id="glossMsg" class="mute small" role="status"></span></div>
+    </div>
+
+    <div class="card" id="keysCard">
+      <h2><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg>API 翻譯金鑰</h2>
+      <p class="mute small">用你自己的金鑰翻譯,費用由你的帳號負擔。金鑰加密後存在伺服器,只在你的翻譯工作進行時使用;這裡只顯示末四碼,別人(包括管理者)看不到。不用 API 翻譯的話可以不填,離線翻譯(M2M100)不需要金鑰。</p>
+      <p id="keysOff" class="note" hidden>你的帳號沒有開通 API 翻譯,需要的話請聯絡管理者。</p>
+      <div id="keysForms">
+        <form class="keyform" data-provider="anthropic">
+          <h3>Claude(Anthropic)<span class="keystate small mute"></span></h3>
+          <div class="row"><input type="password" name="key" placeholder="貼上 Claude 金鑰(sk-ant-…)" autocomplete="off" spellcheck="false" aria-label="Claude 金鑰">
+            <button class="btn primary" type="submit">儲存</button><button class="btn danger keydel" type="button" hidden>刪除</button></div>
+          <p class="keymsg small" role="status"></p>
+        </form>
+        <form class="keyform" data-provider="openai">
+          <h3>OpenAI<span class="keystate small mute"></span></h3>
+          <div class="row"><input type="password" name="key" placeholder="貼上 OpenAI 金鑰(sk-…)" autocomplete="off" spellcheck="false" aria-label="OpenAI 金鑰">
+            <input type="text" name="model" placeholder="模型名稱,例如 gpt-4o-mini" class="model" spellcheck="false" maxlength="80" aria-label="OpenAI 模型名稱">
+            <button class="btn primary" type="submit">儲存</button><button class="btn danger keydel" type="button" hidden>刪除</button></div>
+          <p class="keymsg small" role="status"></p>
+        </form>
+        <p class="mute small">儲存時會先向 Anthropic / OpenAI 確認金鑰有效(不會產生翻譯費用)。網頁版只連官方網址。</p>
+      </div>
+    </div>
+
+    <div class="card danger-card">
+      <h2><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg>刪除我的資料</h2>
+      <p class="mute">立即刪除你上傳的所有檔案、產生的字幕、處理紀錄、詞彙表與 API 金鑰,無法復原。帳號本身會保留。</p>
+      <div class="row"><button id="wipe" class="btn danger">刪除我的所有資料</button><span id="wipeMsg" class="small" role="status"></span></div>
+    </div>
+  </section>
+
+  <!-- 管理頁(只有管理者看得到) -->
+  <section id="view-admin" class="view" hidden>
+    <h1 class="page-title">管理</h1>
+    <div id="adminNote" class="note" hidden></div>
+    <div class="card">
+      <h2><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>等待核准 <span id="pendingCount" class="mute small"></span></h2>
+      <table class="files plain"><thead><tr><th>名稱與信箱</th><th>申請時間</th><th><span class="sr">動作</span></th></tr></thead><tbody id="pendingRows"></tbody></table>
+      <p id="pendingEmpty" class="empty-line mute">目前沒有等待核准的帳號。</p>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h2><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>所有帳號</h2>
+        <label class="field inline small">顯示 <select id="userFilter">
+          <option value="">全部</option><option value="approved">可使用</option><option value="pending">等待核准</option><option value="blocked">已停用</option>
+        </select></label>
+      </div>
+      <p class="mute small">管理頁只顯示帳號、權限與用量,看不到任何人的檔案或字幕內容。停用的帳號會立即無法使用,排隊中與處理中的工作也會取消。</p>
+      <table class="files plain"><thead><tr><th>名稱與信箱</th><th>狀態與等級</th><th>今天/空間</th><th>最後使用</th><th><span class="sr">動作</span></th></tr></thead><tbody id="userRows"></tbody></table>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>佇列</h2>
+        <p class="mute small" id="queueNote"></p>
+        <table class="files plain"><thead><tr><th>順序</th><th>使用者</th><th>檔案</th><th>狀態</th></tr></thead><tbody id="queueRows"></tbody></table>
+        <p id="queueEmpty" class="empty-line mute">目前沒有處理中或排隊中的工作。</p>
+      </div>
+      <div class="card">
+        <h2><svg class="ic" aria-hidden="true"><use href="#i-broom"/></svg>到期清除</h2>
+        <p class="mute small">網站每小時自動清除到期的音訊、字幕與沒傳完的上傳,天數照每個人的「保存天數」。<span id="dayNote"></span></p>
+        <div class="row"><button id="runCleanup" class="btn">立即清除到期檔案</button></div>
+        <p id="cleanupMsg" class="mute small" role="status"></p>
+      </div>
+    </div>
+    <div class="card">
+      <h2><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg>等級預設值</h2>
+      <p class="mute small">改了按「儲存」後立即套用到該等級的所有人;個別設定過的項目不受影響。保存天數改了之後,下一輪到期清除就照新的天數。</p>
+      <div class="tiers-wrap"><table class="files plain tiers"><thead><tr><th>項目</th><th>一般會員</th><th>付費會員</th></tr></thead><tbody id="tierRows"></tbody></table></div>
+      <div class="row"><button id="saveTiers" class="btn primary">儲存等級預設值</button><span id="tierMsg" class="mute small" role="status"></span></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="pv" aria-labelledby="pvTitle">
+  <div class="dlg-head">
+    <div><strong id="pvTitle"></strong><div id="pvInfo" class="mute small"></div></div>
+    <div class="row tight">
+      <span id="pvSwitch"></span>
+      <button class="btn" id="pvClose">關閉</button>
+    </div>
+  </div>
+  <div class="pv-body"><table class="pv"><thead><tr><th>#</th><th>開始</th><th>結束</th><th>字幕</th></tr></thead><tbody id="pvRows"></tbody></table></div>
+</dialog>
+
+<dialog id="ov" aria-labelledby="ovTitle">
+  <form method="dialog" id="ovForm">
+    <div class="dlg-head"><div><strong id="ovTitle">個別設定</strong><div id="ovInfo" class="mute small"></div></div></div>
+    <div class="ov-body">
+      <div class="ov-top">
+        <label class="field inline"><span>狀態</span><select id="ovStatus"><option value="approved">可使用</option><option value="pending">等待核准</option><option value="blocked">停用</option></select></label>
+        <label class="field inline"><span>等級</span><select id="ovTier"><option value="free">一般會員</option><option value="paid">付費會員</option></select></label>
+        <label class="check"><input type="checkbox" id="ovAdmin"> 管理者</label>
+      </div>
+      <p class="mute small">留白的項目照等級的預設值(灰字);有填的只套用在這個帳號。</p>
+      <table class="files plain"><thead><tr><th>項目</th><th>這個帳號</th><th>等級預設</th></tr></thead><tbody id="ovRows"></tbody></table>
+      <p id="ovMsg" class="bad small" role="alert"></p>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn" id="ovClear">全部改回照等級</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="ovCancel">取消</button>
+      <button type="submit" class="btn primary" id="ovSave">儲存</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

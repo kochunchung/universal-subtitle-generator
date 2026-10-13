@@ -1,0 +1,15 @@
+torch==2.5.1
+torchaudio==2.5.1
+transformers==4.46.3
+accelerate
+PySide6
+nvidia-ml-py
+silero-vad
+opencc-python-reimplemented
+sentencepiece
+huggingface_hub
+keyring
+anthropic
+openai
+numpy<2.3
+rjieba

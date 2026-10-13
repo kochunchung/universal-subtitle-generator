@@ -1,0 +1,7 @@
+# Web version extra packages (kept separate from requirements.in for the desktop app).
+# Installed by the web-packages installer .bat, which pins shared packages with requirements.lock.
+fastapi
+uvicorn
+itsdangerous
+authlib
+cryptography

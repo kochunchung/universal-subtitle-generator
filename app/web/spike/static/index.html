@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>網頁版第 0 階段實測</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --mute:#667085; --line:#e3e6ec; --acc:#1f6feb; --ok:#127a3f; --bad:#b42318; --warn:#9a6700; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#12151b; --card:#1b2029; --ink:#e8ecf3; --mute:#9aa4b5; --line:#2b3240; --acc:#5b9dff; --ok:#4cc38a; --bad:#ff7b72; --warn:#e3b341; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.65 "Microsoft JhengHei UI","PingFang TC","Noto Sans TC",system-ui,sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 22px; margin: 6px 0 4px; }
+  h2 { font-size: 17px; margin: 0 0 8px; }
+  p.lead { color: var(--mute); margin: 0 0 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 14px 0; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  button.primary { background: var(--acc); border-color: var(--acc); color:#fff; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  select, input[type=text] { font: inherit; padding: 6px 8px; border-radius: 8px; border:1px solid var(--line); background: var(--card); color: var(--ink); }
+  .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 22px; text-align:center; color: var(--mute); }
+  .drop.over { border-color: var(--acc); color: var(--ink); }
+  .bar { height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; margin: 8px 0 4px; }
+  .bar > i { display:block; height:100%; width:0; background: var(--acc); transition: width .2s; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  td, th { border-bottom: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+  td:first-child { color: var(--mute); width: 11em; white-space: nowrap; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); } .mute { color: var(--mute); }
+  pre, textarea { width:100%; font: 12.5px/1.5 Consolas,Menlo,monospace; background: var(--bg); color: var(--ink); border:1px solid var(--line); border-radius: 8px; padding: 8px; }
+  pre { max-height: 220px; overflow:auto; white-space: pre-wrap; margin: 8px 0 0; }
+  textarea { height: 190px; }
+  details > summary { cursor: pointer; color: var(--mute); }
+  .small { font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>網頁版第 0 階段:瀏覽器抽音訊與大檔上傳實測</h1>
+  <p class="lead">目的:確認「一般會員在瀏覽器先抽音訊再上傳」與「付費會員分塊上傳大影片」這兩條路在你的電腦上行不行。
+    影片只會傳到你這台電腦上的測試伺服器(127.0.0.1),測完立刻刪除,不會離開你的電腦。</p>
+
+  <div class="card">
+    <h2>1. 選一個影片</h2>
+    <div id="drop" class="drop">把影片拖到這裡,或 <button id="pick" type="button">選擇檔案</button>
+      <input id="file" type="file" accept="video/*,audio/*,.mkv,.ts,.mts,.m2ts,.flv,.wmv" hidden></div>
+    <div id="fileinfo" class="small mute" style="margin-top:8px">尚未選擇檔案。建議用 Teams.mp4(約 4 GB)測一次,再用一個小檔案測一次。</div>
+    <details style="margin-top:10px"><summary>這個瀏覽器的環境</summary><table id="env"></table></details>
+  </div>
+
+  <div class="card">
+    <h2>2. 測試 A:瀏覽器抽音訊(一般會員路線)</h2>
+    <p class="small mute" style="margin-top:0">用 ffmpeg.wasm 在瀏覽器內抽出單聲道 MP3,不把整支影片讀進記憶體。第一次會下載約 32 MB 的元件(之後有快取)。
+      測試中請按 <b>Shift+Esc</b> 開 Chrome 的「工作管理員」,看這個分頁的「記憶體使用量」最高到多少,測完告訴我。</p>
+    <div class="row">
+      <label>位元率 <select id="abr"><option value="128k" selected>128 kbps(與桌面版相同)</option><option value="64k">64 kbps(較小)</option></select></label>
+      <button id="runA" class="primary" disabled>開始測試 A</button>
+      <button id="stopA" disabled>中止</button>
+    </div>
+    <div class="bar"><i id="barA"></i></div>
+    <div id="statA" class="small mute">等待選檔。</div>
+    <table id="resA"></table>
+    <div class="row" style="margin-top:8px"><button id="dlA" disabled>下載抽出的 MP3(聽聽看對不對)</button></div>
+    <details><summary>ffmpeg 訊息</summary><pre id="logA"></pre></details>
+  </div>
+
+  <div class="card">
+    <h2>3. 測試 B:分塊上傳原始影片(付費會員路線)</h2>
+    <p class="small mute" style="margin-top:0">每塊 16 MB 依序上傳到本機測試伺服器。傳到一半可按「模擬斷線」,再按「續傳」,確認會從伺服器已收到的位置接著傳。
+      傳完後伺服器會用現有程式的 ffprobe 與 extract_mp3 處理並量時間,然後刪除檔案。</p>
+    <div class="row">
+      <button id="runB" class="primary" disabled>開始上傳</button>
+      <button id="cutB" disabled>模擬斷線</button>
+      <button id="resB" disabled>續傳</button>
+    </div>
+    <div class="bar"><i id="barB"></i></div>
+    <div id="statB" class="small mute">等待選檔。</div>
+    <table id="resBt"></table>
+  </div>
+
+  <div class="card">
+    <h2>4. 測試 C:伺服器端上限檢查</h2>
+    <p class="small mute" style="margin-top:0">模擬「一般會員」身分上傳選到的檔案。若檔案超過 200 MB 或不是音訊檔,伺服器應在<b>一開始</b>就拒絕。</p>
+    <div class="row"><button id="runC" disabled>用一般會員身分上傳原檔(預期被拒絕)</button></div>
+    <div id="statC" class="small mute" style="margin-top:6px"></div>
+  </div>
+
+  <div class="card">
+    <h2>5. 結果報告</h2>
+    <p class="small mute" style="margin-top:0">測完後按「複製」,整段貼回給我就好。</p>
+    <textarea id="report" readonly placeholder="測試結果會出現在這裡"></textarea>
+    <div class="row" style="margin-top:8px"><button id="copy">複製</button></div>
+  </div>
+</main>
+
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const fmtMB = (n) => (n / 2**20).toFixed(1) + " MB";
+const fmtGB = (n) => (n / 2**30).toFixed(2) + " GB";
+const fmtSize = (n) => n >= 2**30 ? fmtGB(n) : fmtMB(n);
+const fmtDur = (s) => { s = Math.round(s); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60;
+  return (h ? h + " 小時 " : "") + (m ? m + " 分 " : "") + x + " 秒"; };
+const report = { when: new Date().toISOString(), browser: navigator.userAgent };
+let file = null, ffmpegLib = null;
+
+function showTable(el, rows) {
+  el.innerHTML = rows.map(([k, v, cls]) => `<tr><td>${k}</td><td class="${cls || ""}">${v}</td></tr>`).join("");
+}
+function updateReport() { $("report").value = JSON.stringify(report, null, 2); }
+
+// ------------------------------------------------------------ 環境
+(function env() {
+  const rows = [
+    ["瀏覽器", navigator.userAgent],
+    ["CPU 執行緒數", navigator.hardwareConcurrency ?? "?"],
+    ["裝置記憶體(粗估)", navigator.deviceMemory ? navigator.deviceMemory + " GB(上限回報 8)" : "瀏覽器不提供"],
+    ["WebAssembly", typeof WebAssembly === "object" ? "支援" : "不支援", typeof WebAssembly === "object" ? "ok" : "bad"],
+    ["WebCodecs(備案用)", typeof VideoDecoder === "function" && typeof AudioDecoder === "function" ? "支援" : "不支援"],
+    ["JS 記憶體統計", performance.memory ? "有(僅 Chrome)" : "沒有"],
+  ];
+  showTable($("env"), rows);
+  report.env = { cores: navigator.hardwareConcurrency, deviceMemoryGB: navigator.deviceMemory ?? null,
+                 wasm: typeof WebAssembly === "object", webcodecs: typeof VideoDecoder === "function" };
+})();
+
+// ------------------------------------------------------------ 選檔
+function setFile(f) {
+  file = f;
+  $("fileinfo").innerHTML = `<b>${escapeHtml(f.name)}</b> · ${fmtSize(f.size)} · 類型 ${escapeHtml(f.type || "未知")}`;
+  for (const id of ["runA", "runB", "runC"]) $(id).disabled = false;
+  report.file = { size: f.size, type: f.type || null, ext: (f.name.match(/\.[A-Za-z0-9]+$/) || [""])[0] };
+  updateReport();
+}
+const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+$("pick").onclick = () => $("file").click();
+$("file").onchange = (e) => e.target.files[0] && setFile(e.target.files[0]);
+const drop = $("drop");
+["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => e.dataTransfer.files[0] && setFile(e.dataTransfer.files[0]));
+
+// ------------------------------------------------------------ 共用:上傳
+const CHUNK = 16 * 2**20;
+function randomUid() {
+  const a = new Uint8Array(12); crypto.getRandomValues(a);
+  return "t" + [...a].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function received(uid) {
+  const r = await fetch(`/api/upload/${uid}`); return (await r.json()).received || 0;
+}
+/** 分塊上傳 blob;回傳 {ok, ...}。state.cut 設為 true 會在下一塊前停下(模擬斷線)。 */
+async function uploadBlob(blob, name, tier, uid, state, onProgress) {
+  let off = await received(uid);
+  const t0 = performance.now(); const start = off;
+  let fails = 0;
+  while (off < blob.size) {
+    if (state.cut) return { ok: false, cut: true, received: off };
+    const part = blob.slice(off, Math.min(off + CHUNK, blob.size));
+    let resp;
+    try {
+      resp = await fetch(`/api/upload/${uid}?offset=${off}&total=${blob.size}&tier=${tier}&name=${encodeURIComponent(name)}`,
+        { method: "PUT", body: part });
+    } catch (e) {
+      if (++fails > 3) return { ok: false, error: "網路錯誤:" + e };
+      off = await received(uid); continue;
+    }
+    if (resp.status === 409) { off = (await resp.json()).received; continue; }
+    if (!resp.ok) { let m = resp.status; try { m = (await resp.json()).error; } catch {} return { ok: false, status: resp.status, error: m }; }
+    fails = 0;
+    off = (await resp.json()).received;
+    onProgress?.(off, (off - start) / 2**20 / Math.max(0.001, (performance.now() - t0) / 1000));
+  }
+  return { ok: true, seconds: (performance.now() - t0) / 1000, sentBytes: blob.size - start };
+}
+async function finish(uid, extract) {
+  const r = await fetch(`/api/finish/${uid}?extract=${extract ? 1 : 0}`, { method: "POST" });
+  return r.json();
+}
+
+// ------------------------------------------------------------ 測試 A:ffmpeg.wasm
+let ffmpeg = null, abortA = false, outBlobA = null, progressCb = null;
+async function loadFFmpeg(log) {
+  if (ffmpeg) return ffmpeg;
+  const { FFmpeg } = await import("/vendor/ffmpeg/index.js");
+  const f = new FFmpeg();
+  f.on("log", ({ message }) => log(message));
+  await f.load({ coreURL: "/vendor/core/ffmpeg-core.js", wasmURL: "/vendor/core/ffmpeg-core.wasm" });
+  ffmpeg = f; return f;
+}
+$("stopA").onclick = () => { abortA = true; try { ffmpeg?.terminate(); } catch {} ffmpeg = null; $("statA").textContent = "已中止。"; };
+$("dlA").onclick = () => {
+  if (!outBlobA) return;
+  const a = document.createElement("a"); a.href = URL.createObjectURL(outBlobA); a.download = "extracted.mp3"; a.click();
+};
+$("runA").onclick = async () => {
+  if (!file) return;
+  abortA = false; outBlobA = null; $("dlA").disabled = true;
+  $("runA").disabled = true; $("stopA").disabled = false;
+  $("logA").textContent = ""; $("barA").style.width = "0";
+  const A = { bitrate: $("abr").value }; report.testA = A;
+  let heapMax = 0; const sampler = setInterval(() => {
+    if (performance.memory) heapMax = Math.max(heapMax, performance.memory.usedJSHeapSize);
+  }, 300);
+  const logLines = []; let srcDuration = null, inInput = true; const audioStreams = [];
+  const log = (m) => {
+    logLines.push(m); if (logLines.length > 400) logLines.shift();
+    $("logA").textContent = logLines.slice(-60).join("\n");
+    const d = m.match(/Duration:\s*(\d+):(\d+):(\d+\.?\d*)/);
+    if (d && srcDuration === null) srcDuration = +d[1] * 3600 + +d[2] * 60 + +d[3];
+    if (/^Output #0/.test(m)) inInput = false;
+    if (inInput && /Stream #0:\d+.*Audio:/.test(m)) audioStreams.push(m.trim());
+  };
+  try {
+    $("statA").textContent = "載入 ffmpeg 元件…(第一次要下載約 32 MB)";
+    const tLoad = performance.now();
+    const f = await loadFFmpeg(log);
+    A.loadSeconds = +((performance.now() - tLoad) / 1000).toFixed(1);
+    if (progressCb) f.off("progress", progressCb);
+    progressCb = ({ progress }) => {
+      const p = Math.max(0, Math.min(1, progress));
+      $("barA").style.width = (p * 100).toFixed(1) + "%";
+      $("statA").textContent = `抽音訊中… ${(p * 100).toFixed(0)}%,已 ${((performance.now() - t0) / 1000).toFixed(0)} 秒`;
+    };
+    f.on("progress", progressCb);
+    const ext = (file.name.match(/\.[A-Za-z0-9]{1,5}$/) || [".bin"])[0].toLowerCase();
+    const inName = "input" + ext;
+    try { await f.unmount("/in"); } catch {}
+    try { await f.createDir("/in"); } catch {}
+    const mounted = await f.mount("WORKERFS", { blobs: [{ name: inName, data: file }] }, "/in");
+    if (!mounted) throw new Error("這個瀏覽器版本無法掛載檔案(WORKERFS)");
+    const t0 = performance.now();
+    $("statA").textContent = "抽音訊中…";
+    const code = await f.exec(["-hide_banner", "-i", "/in/" + inName, "-map", "0:a:0", "-vn", "-sn", "-dn",
+      "-ac", "1", "-codec:a", "libmp3lame", "-b:a", $("abr").value, "out.mp3"]);
+    A.extractSeconds = +((performance.now() - t0) / 1000).toFixed(1);
+    if (abortA) return;
+    if (code !== 0) throw new Error("ffmpeg 結束碼 " + code + "(看下方 ffmpeg 訊息)");
+    const data = await f.readFile("out.mp3");
+    A.mp3Bytes = data.length;
+    outBlobA = new Blob([data], { type: "audio/mpeg" });
+    try { await f.deleteFile("out.mp3"); } catch {}
+    try { await f.unmount("/in"); } catch {}
+    A.sourceSeconds = srcDuration; A.audioStreamsSeen = audioStreams.length;
+    A.speedX = srcDuration ? +(srcDuration / A.extractSeconds).toFixed(1) : null;
+    A.jsHeapMaxMB = performance.memory ? +(heapMax / 2**20).toFixed(0) : null;
+    $("barA").style.width = "100%"; $("dlA").disabled = false;
+
+    // 上傳抽出的音訊,讓伺服器用 ffprobe 核對長度(一般會員的實際流程)
+    $("statA").textContent = "上傳抽出的音訊並請伺服器核對…";
+    const uid = randomUid();
+    const up = await uploadBlob(outBlobA, "extracted.mp3", "free", uid, {}, null);
+    A.upload = up.ok ? { seconds: +up.seconds.toFixed(1) } : { error: up.error || up.status };
+    if (up.ok) {
+      const fin = await finish(uid, false);
+      A.server = fin;
+      A.durationMatch = fin.duration_s && srcDuration ? Math.abs(fin.duration_s - srcDuration) < 2 : null;
+    } else { fetch(`/api/discard/${uid}`, { method: "POST" }); }
+    $("statA").innerHTML = `<span class="ok">完成。</span>`;
+    showTable($("resA"), [
+      ["抽音訊耗時", A.extractSeconds + " 秒" + (A.speedX ? `(約 ${A.speedX} 倍速)` : "")],
+      ["元件載入", A.loadSeconds + " 秒"],
+      ["影片長度(ffmpeg 讀到)", srcDuration ? fmtDur(srcDuration) : "未取得"],
+      ["輸出 MP3 大小", fmtSize(A.mp3Bytes)],
+      ["JS 記憶體高峰", A.jsHeapMaxMB != null ? A.jsHeapMaxMB + " MB(不含 wasm,請另看工作管理員)" : "此瀏覽器不提供"],
+      ["伺服器核對長度", A.server ? (A.server.ok ? `${fmtDur(A.server.duration_s)} ${A.durationMatch === false ? "(與來源不符!)" : "(相符)"}` : "失敗:" + A.server.error) : "未做",
+        A.server?.ok && A.durationMatch !== false ? "ok" : "bad"],
+    ]);
+  } catch (e) {
+    A.error = String(e && e.message || e);
+    $("statA").innerHTML = `<span class="bad">失敗:${escapeHtml(A.error)}</span>`;
+    showTable($("resA"), [["失敗原因", escapeHtml(A.error), "bad"]]);
+    ffmpeg = null; progressCb = null;   // 出錯後重新載入比較保險
+  } finally {
+    clearInterval(sampler);
+    A.lastLog = logLines.slice(-12);
+    $("runA").disabled = false; $("stopA").disabled = true; updateReport();
+  }
+};
+
+// ------------------------------------------------------------ 測試 B:分塊上傳
+let uidB = null; const stateB = { cut: false };
+function barB(off, speed) {
+  $("barB").style.width = (off / file.size * 100).toFixed(1) + "%";
+  $("statB").textContent = `已傳 ${fmtSize(off)} / ${fmtSize(file.size)}(${(off / file.size * 100).toFixed(0)}%),速度 ${speed.toFixed(0)} MB/s`;
+}
+async function doUploadB(resume) {
+  const B = report.testB = report.testB || { cuts: 0 };
+  stateB.cut = false;
+  $("runB").disabled = true; $("resB").disabled = true; $("cutB").disabled = false;
+  if (!resume) { uidB = randomUid(); B.cuts = 0; B.totalSeconds = 0; $("barB").style.width = "0"; }
+  const r = await uploadBlob(file, file.name, "paid", uidB, stateB, barB);
+  $("cutB").disabled = true;
+  if (r.cut) {
+    B.cuts++; $("statB").innerHTML = `<span class="warn">已模擬斷線,伺服器已收到 ${fmtSize(r.received)}。按「續傳」繼續。</span>`;
+    $("resB").disabled = false; updateReport(); return;
+  }
+  if (!r.ok) {
+    B.error = r.error; $("statB").innerHTML = `<span class="bad">上傳失敗:${escapeHtml(String(r.error))}</span>`;
+    $("runB").disabled = false; updateReport(); return;
+  }
+  B.totalSeconds += r.seconds; B.lastLegMB_s = +(r.sentBytes / 2**20 / r.seconds).toFixed(0);
+  $("statB").textContent = "上傳完成,伺服器檢查並抽音訊中…";
+  const fin = await finish(uidB, true);
+  B.server = fin;
+  showTable($("resBt"), [
+    ["上傳", `${fmtSize(file.size)},最後一段速度約 ${B.lastLegMB_s} MB/s;斷線續傳 ${B.cuts} 次`],
+    ["伺服器 ffprobe", fin.ok === false && !fin.duration_s ? "失敗:" + fin.error : `${fmtDur(fin.duration_s || 0)}(耗時 ${fin.probe_s} 秒)`],
+    ["音軌", escapeHtml((fin.audio_streams || []).join(";") || "—")],
+    ["伺服器抽音訊", fin.extract_s != null ? `${fin.extract_s} 秒(約 ${fin.speed_x} 倍速),MP3 ${fmtSize(fin.mp3_size)}` : (fin.error ? "未做:" + fin.error : "—"),
+      fin.extract_s != null ? "ok" : "bad"],
+  ]);
+  $("statB").innerHTML = fin.ok ? `<span class="ok">完成。</span> 伺服器已刪除檔案。` : `<span class="bad">伺服器回報:${escapeHtml(fin.error || "")}</span>`;
+  $("runB").disabled = false; updateReport();
+}
+$("runB").onclick = () => { delete report.testB; $("resBt").innerHTML = ""; doUploadB(false); };
+$("resB").onclick = () => doUploadB(true);
+$("cutB").onclick = () => { stateB.cut = true; };
+
+// ------------------------------------------------------------ 測試 C:上限檢查
+$("runC").onclick = async () => {
+  const C = report.testC = {};
+  const uid = randomUid();
+  const part = file.slice(0, Math.min(file.size, 1024));
+  const r = await fetch(`/api/upload/${uid}?offset=0&total=${file.size}&tier=free&name=${encodeURIComponent(file.name)}`,
+    { method: "PUT", body: part });
+  let msg = ""; try { msg = (await r.json()).error || ""; } catch {}
+  C.status = r.status; C.message = msg;
+  if (r.ok) { C.accepted = true; fetch(`/api/discard/${uid}`, { method: "POST" });
+    $("statC").innerHTML = `<span class="ok">伺服器接受了(這個檔案符合一般會員的條件)。</span>`;
+  } else { C.accepted = false;
+    $("statC").innerHTML = `<span class="ok">伺服器在第一塊就拒絕了(${r.status}):${escapeHtml(msg)}</span>`; }
+  updateReport();
+};
+$("copy").onclick = async () => { await navigator.clipboard.writeText($("report").value); $("copy").textContent = "已複製"; setTimeout(() => $("copy").textContent = "複製", 1500); };
+fetch("/api/info").then((r) => r.json()).then((i) => { report.server = i; updateReport(); });
+</script>
+</body>
+</html>

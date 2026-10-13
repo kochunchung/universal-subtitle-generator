@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>萬能字幕產生器 — 影片拖進來，字幕就出來</title>
+<meta name="description" content="在自己的 NVIDIA 顯卡上用 Whisper 轉錄影片、產生 SRT 並翻譯。6 GB 顯存就能跑，附桌面版與多人網頁版。">
+<meta property="og:title" content="萬能字幕產生器">
+<meta property="og:description" content="影片拖進來，幾分鐘後拿到字幕，還能翻成你要的語言。本機辨識，資料不外流。">
+<style>
+:root{--bg:#F0FDFA;--card:#fff;--ink:#134E4A;--sub:#3f6f6a;--pri:#0F766E;--pri-ink:#fff;--cta:#C2410C;--line:#c9ebe6;--code:#0b3b37}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1f1d;--card:#10302d;--ink:#e6fffb;--sub:#9fd1ca;--pri:#2dd4bf;--pri-ink:#04201d;--cta:#fb923c;--line:#1d4a45;--code:#04201d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI","Microsoft JhengHei","PingFang TC",sans-serif}
+a{color:var(--pri)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+.brand{font-weight:700;display:flex;gap:10px;align-items:center}
+.logo{width:28px;height:28px;border-radius:8px;background:var(--pri)}
+.btn{display:inline-block;padding:12px 22px;border-radius:10px;font-weight:600;text-decoration:none;border:2px solid var(--pri);color:var(--pri)}
+.btn.cta{background:var(--cta);border-color:var(--cta);color:#fff}
+.hero{padding:48px 0 32px;text-align:center}
+.hero h1{font-size:clamp(30px,5vw,52px);line-height:1.2;margin:0 0 16px}
+.hero p{font-size:19px;color:var(--sub);max-width:680px;margin:0 auto 28px}
+.hero .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.demo{margin:40px auto 0;max-width:720px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:left;font-family:ui-monospace,Consolas,monospace;font-size:14px}
+.demo b{color:var(--pri)}
+section{padding:40px 0}
+h2{font-size:28px;margin:0 0 24px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.card h3{margin:0 0 6px;font-size:18px}
+.card p{margin:0;color:var(--sub);font-size:15px}
+ol.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:12px;max-width:640px;margin:0 auto}
+ol.steps li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 56px;position:relative}
+ol.steps li::before{content:counter(s);position:absolute;left:14px;top:12px;width:30px;height:30px;border-radius:50%;background:var(--pri);color:var(--pri-ink);display:grid;place-items:center;font-weight:700}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:15px}
+th,td{padding:10px 14px;border-bottom:1px solid var(--line);text-align:left}
+th{background:var(--pri);color:var(--pri-ink)}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0 0;color:var(--sub)}
+footer{text-align:center;color:var(--sub);padding:40px 0;font-size:14px}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="logo" aria-hidden="true"></span>萬能字幕產生器</div>
+    <a class="btn" href="https://github.com/kochunchung/universal-subtitle-generator">GitHub</a>
+  </header>
+
+  <div class="hero">
+    <h1>影片拖進來，<br>字幕就出來。</h1>
+    <p>在你自己的 NVIDIA 顯示卡上用 Whisper 轉錄，產生 SRT 字幕並翻成你要的語言。6 GB 顯存就跑得動，影片不必交給第三方。</p>
+    <div class="btns">
+      <a class="btn cta" href="https://github.com/kochunchung/universal-subtitle-generator#快速開始桌面版">開始使用</a>
+      <a class="btn" href="https://github.com/kochunchung/universal-subtitle-generator">查看原始碼</a>
+    </div>
+    <div class="demo" aria-label="輸出範例">
+      1<br>00:00:01,200 --> 00:00:04,100<br><b>今天我們來看這個新功能。</b><br><br>
+      2<br>00:00:04,300 --> 00:00:07,000<br><b>Today we'll look at this new feature.</b>
+    </div>
+  </div>
+
+  <section>
+    <h2>為什麼用它</h2>
+    <div class="grid">
+      <div class="card"><h3>本機辨識，資料不外流</h3><p>Whisper large-v3-turbo 在你的電腦上執行，中、英、日等多語言都能辨識。</p></div>
+      <div class="card"><h3>6 GB 顯存就夠</h3><p>「顯存校準」自動找出最佳批次，不會因為顯存不足而中斷。</p></div>
+      <div class="card"><h3>轉錄與翻譯分開</h3><p>先轉錄，之後想要英文或日文再按一次，不用重跑辨識，一支影片可累積多種語言字幕。</p></div>
+      <div class="card"><h3>翻譯引擎自選</h3><p>離線翻譯完全不用網路；也能接 Claude 或 OpenAI，取得更自然的口語翻譯。</p></div>
+      <div class="card"><h3>詞彙表</h3><p>加入專有名詞，提高辨識率並固定譯法。</p></div>
+      <div class="card"><h3>整個資料夾可攜</h3><p>不需系統管理員權限，複製到另一台 NVIDIA 電腦就能用。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>三步驟</h2>
+    <ol class="steps">
+      <li>雙擊 <code>install.bat</code> 安裝，再雙擊 <code>顯存校準.bat</code></li>
+      <li>把影片、音檔或整個資料夾拖進視窗</li>
+      <li>選翻譯目標，按「開始處理」，字幕就出現在影片旁邊</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>桌面版或網頁版</h2>
+    <div class="scroll"><table>
+      <tr><th></th><th>桌面版</th><th>網頁版</th></tr>
+      <tr><td>適合</td><td>自己用</td><td>團隊用瀏覽器上傳</td></tr>
+      <tr><td>登入</td><td>不需要</td><td>Google 登入＋管理者核准</td></tr>
+      <tr><td>限額</td><td>無</td><td>一般／付費等級，管理頁可調</td></tr>
+      <tr><td>API 金鑰</td><td>Windows 認證管理員</td><td>每人自己的金鑰，加密保存</td></tr>
+      <tr><td>上傳</td><td>直接讀本機檔案</td><td>瀏覽器先抽聲音再上傳，可續傳</td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>常見問題</h2>
+    <details><summary>需要什麼硬體？</summary><p>Windows 10/11 與 NVIDIA 顯示卡（驅動 531.14 以上，建議 6 GB 以上顯存）。</p></details>
+    <details><summary>可以商用嗎？</summary><p>程式碼是 MIT 授權。模型與元件各有授權，例如 NLLB 僅限非商業，使用前請確認。</p></details>
+    <details><summary>一定要上網嗎？</summary><p>安裝與下載模型需要網路；之後用離線翻譯可完全離線。使用 Claude／OpenAI 翻譯時，字幕文字才會送到該服務。</p></details>
+    <details><summary>網頁版安全嗎？</summary><p>內建 CSRF 防護、HttpOnly Cookie、金鑰加密與到期自動清除。對外開放請依 SECURITY.md 檢查設定。</p></details>
+  </section>
+
+  <footer>MIT License · <a href="https://github.com/kochunchung/universal-subtitle-generator">GitHub</a></footer>
+</div>
+</body>
+</html>

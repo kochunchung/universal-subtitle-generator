@@ -1,0 +1,36 @@
+# ===== 機密(絕對不能上傳) =====
+.env
+.env.*
+!.env.example
+client_secret*.json
+*.key
+*.pem
+data/
+logs/
+
+# ===== 太大 / 可重新下載 =====
+python/
+ffmpeg/
+tools/
+models/
+.cache/
+*.safetensors
+*.bin
+
+# ===== 個人測試檔(影片、音檔、字幕) =====
+*.mp4
+*.mkv
+*.mov
+*.mp3
+*.wav
+*.m4a
+*.srt
+!tests/**/*.srt
+
+# ===== 其他 =====
+__pycache__/
+*.pyc
+*.sqlite3
+config/settings.json
+.vscode/
+.idea/
