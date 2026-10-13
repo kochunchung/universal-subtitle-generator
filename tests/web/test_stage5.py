@@ -164,10 +164,10 @@ def test_desktop_hints_rewritten():
     class E(Exception):
         status_code = 401
     t = web_hint(_fatal_reason(E()))
-    assert "設定API金鑰.bat" not in t and "請到「設定」頁重新填寫金鑰" in t
+    assert "set-api-key.bat" not in t and "請到「設定」頁重新填寫金鑰" in t
     E.status_code = 404
     assert web_hint(_fatal_reason(E())).endswith("請到「設定」頁確認模型名稱")
-    assert "設定API金鑰" not in web_hint("尚未設定 anthropic 的 API 金鑰,請先執行「設定API金鑰.bat」")
+    assert "set-api-key" not in web_hint("尚未設定 anthropic 的 API 金鑰,請先執行 set-api-key.bat")
 
 
 # ---------------------------------------------------------------------- 到期清除

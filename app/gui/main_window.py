@@ -300,7 +300,7 @@ class MainWindow(QMainWindow):
             bs = int(max(1, min(16, free // cal["per_item_mb"])))
             self.gpu_batch.setText(f"建議批次:{bs}(依目前剩餘顯存與校準數據,開始處理時會再確認)")
         else:
-            self.gpu_batch.setText("此模型尚未校準顯存,先用保守批次;可執行「顯存校準.bat」取得最佳值")
+            self.gpu_batch.setText("此模型尚未校準顯存,先用保守批次;可執行 calibrate-vram.bat 取得最佳值")
 
     # ================================================================== 佇列
     def pick_files(self) -> None:

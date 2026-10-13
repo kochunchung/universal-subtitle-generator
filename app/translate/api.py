@@ -46,7 +46,7 @@ class ApiTranslator:
         # 網頁版:每個人自己的金鑰由工作程序的環境變數帶進來;沒有才用 Windows 認證管理員(桌面版行為不變)
         key = os.environ.get(f"APP_API_KEY_{provider.upper()}") or keys.get_key(provider)
         if not key:
-            raise ApiError(f"尚未設定 {provider} 的 API 金鑰,請先執行「設定API金鑰.bat」")
+            raise ApiError(f"尚未設定 {provider} 的 API 金鑰,請先執行 set-api-key.bat")
         self.provider = provider
         self.notes: list[str] = []
         api = settings.get("api") or {}
@@ -62,7 +62,7 @@ class ApiTranslator:
                 api_key=key, base_url=api.get("openai_base_url") or None, max_retries=4, timeout=120)
             self.model = api.get("openai_model") or ""
             if not self.model:
-                raise ApiError("尚未設定 OpenAI 相容 API 的模型名稱,請先執行「設定API金鑰.bat」")
+                raise ApiError("尚未設定 OpenAI 相容 API 的模型名稱,請先執行 set-api-key.bat")
         log.info("API 翻譯:%s,模型 %s", provider, self.model)
 
     def _pick_claude_model(self) -> str:
@@ -152,12 +152,12 @@ def _fatal_reason(e: Exception) -> str | None:
     status = getattr(e, "status_code", None)
     name = e.__class__.__name__
     if status == 401 or name == "AuthenticationError":
-        return ("API 金鑰無效(401)。請重新執行「設定API金鑰.bat」確認金鑰;"
+        return ("API 金鑰無效(401)。請重新執行 set-api-key.bat 確認金鑰;"
                 "如果金鑰不是向 OpenAI 官方申請的(例如公司或第三方服務),要同時填入服務網址")
     if status == 403 or name == "PermissionDeniedError":
         return "這把金鑰沒有使用權限(403),請確認帳號已開通 API 或有剩餘額度"
     if status == 404 or name == "NotFoundError":
-        return "找不到指定的模型或服務網址(404),請重新執行「設定API金鑰.bat」確認模型名稱與網址"
+        return "找不到指定的模型或服務網址(404),請重新執行 set-api-key.bat 確認模型名稱與網址"
     return None
 
 

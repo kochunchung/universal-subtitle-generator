@@ -1,6 +1,6 @@
 """萬能字幕產生器 程式入口(GUI)。
 
-用 啟動字幕產生器.bat 開啟;也可以把影片拖到 bat 上,啟動後直接加入佇列。
+用 start-desktop.bat 開啟;也可以把影片拖到 bat 上,啟動後直接加入佇列。
 """
 from __future__ import annotations
 

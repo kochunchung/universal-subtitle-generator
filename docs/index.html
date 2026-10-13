@@ -65,6 +65,16 @@ footer{text-align:center;color:var(--sub);padding:40px 0;font-size:14px}
   </div>
 
   <section>
+    <h2>速度實測</h2>
+    <div class="grid">
+      <div class="card"><h3 style="font-size:32px;color:var(--pri)">約 2 分鐘</h3><p>處理 52 分 26 秒的 4 GB 會議錄影</p></div>
+      <div class="card"><h3 style="font-size:32px;color:var(--pri)">49 倍即時</h3><p>轉錄速度（Whisper large-v3-turbo，fp16）</p></div>
+      <div class="card"><h3 style="font-size:32px;color:var(--pri)">2.3 GB</h3><p>顯存峰值，6 GB 的顯卡綽綽有餘</p></div>
+    </div>
+    <p style="text-align:center;color:var(--sub);font-size:14px;margin-top:12px">測試環境：RTX 3060 筆電（6 GB）。產生 654 條字幕，無幻聽、無漏段。實際速度依硬體與影片而異。</p>
+  </section>
+
+  <section>
     <h2>為什麼用它</h2>
     <div class="grid">
       <div class="card"><h3>本機辨識，資料不外流</h3><p>Whisper large-v3-turbo 在你的電腦上執行，中、英、日等多語言都能辨識。</p></div>
@@ -79,7 +89,7 @@ footer{text-align:center;color:var(--sub);padding:40px 0;font-size:14px}
   <section>
     <h2>三步驟</h2>
     <ol class="steps">
-      <li>雙擊 <code>install.bat</code> 安裝，再雙擊 <code>顯存校準.bat</code></li>
+      <li>雙擊 <code>install.bat</code> 安裝，再雙擊 <code>calibrate-vram.bat</code></li>
       <li>把影片、音檔或整個資料夾拖進視窗</li>
       <li>選翻譯目標，按「開始處理」，字幕就出現在影片旁邊</li>
     </ol>

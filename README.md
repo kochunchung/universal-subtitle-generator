@@ -11,6 +11,7 @@
 ## 為什麼用它
 
 - **本機辨識，資料不外流**：採用 Whisper large-v3-turbo，中文、英文、日文等多語言都能辨識。
+- **快**：52 分鐘的會議錄影約 2 分鐘完成（RTX 3060 筆電實測，約 49 倍即時）。
 - **6 GB 顯存就夠**：第一次用「顯存校準」自動找出最佳批次，不會爆顯存。
 - **轉錄與翻譯分開**：先轉錄，之後想翻英文、日文再按一次，不會重跑辨識；一份影片可以有多種語言字幕。
 - **翻譯引擎自選**：離線（M2M100）完全不用網路，或接 Claude / OpenAI 取得更自然的口語翻譯。
@@ -29,6 +30,20 @@
 | 上傳 | 直接讀本機檔案 | 瀏覽器先抽出聲音再上傳（省流量），可續傳 |
 | 檔案保存 | 在影片旁邊 | 到期自動清除 |
 
+## 速度實測
+
+在一台 RTX 3060 筆電（6 GB 顯存）上，用 Whisper large-v3-turbo（fp16）轉錄一場 4 GB 的中文會議錄影：
+
+| 項目 | 數據 |
+| --- | --- |
+| 影片長度 | 52 分 26 秒 |
+| 總耗時（含轉 MP3、偵測人聲、載入模型、轉錄） | 約 2 分 03 秒 |
+| 轉錄速度 | 約 49 倍即時 |
+| 顯存峰值 | 2.3 GB |
+| 字幕 | 654 條，無幻聽、無漏段 |
+
+實際速度會因顯示卡、影片內容與語言而不同。這是單一測試的結果，不是保證值。
+
 ## 系統需求
 
 - Windows 10/11、NVIDIA 顯示卡（驅動 531.14 以上，建議 6 GB 以上顯存）
@@ -38,18 +53,18 @@
 
 1. 下載或 clone 這個專案。
 2. 雙擊 `install.bat`（不需系統管理員權限）。
-3. 雙擊 `顯存校準.bat`（約 1 分鐘，每種模型做一次）。
-4. 雙擊 `啟動字幕產生器.bat`，把影片拖進視窗，按「開始處理」。
+3. 雙擊 `calibrate-vram.bat`（約 1 分鐘，每種模型做一次）。
+4. 雙擊 `start-desktop.bat`，把影片拖進視窗，按「開始處理」。
 
 輸出檔放在影片旁邊：`影片名.zh-TW.srt`（原文）、`影片名.en.srt`（譯文）、`影片名.zh-TW-en.srt`（雙語）。
 
 ## 架設網頁版
 
 ```text
-1. 安裝網頁版套件.bat
-2. 複製 .env.example 成 .env，或執行「設定Google登入.bat」依序填入
+1. install-web.bat
+2. 複製 .env.example 成 .env，或執行 setup-google-login.bat 依序填入
    （埠號、Google OAuth 用戶端 ID/密鑰、管理者信箱；簽署金鑰會自動產生）
-3. 啟動網頁版.bat   →  http://localhost:8780/
+3. start-web.bat   →  http://localhost:8780/
 ```
 
 - Google 登入需要自己在 Google Cloud 建立 OAuth 用戶端（網頁應用程式），
@@ -59,7 +74,7 @@
 
 ## 命令列工具
 
-`環境檢查.bat`（檢查 CUDA、PyTorch、ffmpeg、模型）、`轉錄測試.bat`、`翻譯字幕.bat`、`設定API金鑰.bat`、`解碼診斷.bat`、`翻譯診斷.bat`。
+`check-env.bat`（檢查 CUDA、PyTorch、ffmpeg、模型）、`transcribe.bat`、`translate-srt.bat`、`set-api-key.bat`、`diag-decode.bat`、`diag-translate.bat`。
 
 ## 專案結構
 

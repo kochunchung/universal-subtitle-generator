@@ -272,7 +272,7 @@ try {
 
     $mins = [math]::Round(((Get-Date) - $started).TotalMinutes, 1)
     Write-Host ''
-    Write-Log "安裝完成,耗時 $mins 分鐘。請雙擊「啟動字幕產生器.bat」開啟程式。" 'Green'
+    Write-Log "安裝完成,耗時 $mins 分鐘。請雙擊 start-desktop.bat 開啟程式。" 'Green'
     exit 0
 }
 catch {

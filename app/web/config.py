@@ -114,7 +114,7 @@ def load() -> Config:
     if not key_secret:
         if not dev:
             raise RuntimeError("正式環境必須在 .env 設定 WEB_KEY_SECRET(加密使用者 API 金鑰的主金鑰);"
-                               "執行「設定Google登入.bat」會自動產生")
+                               "執行 setup-google-login.bat 會自動產生")
         key_secret = _dev_secret(data_dir / "dev-key-secret.key")
     from app.settings import DEFAULT_WHISPER
 
